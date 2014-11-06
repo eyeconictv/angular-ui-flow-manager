@@ -1,7 +1,7 @@
 {
   "name": "angular-ui-flow-manager",
   "version": "1.0.0",
-  "description": "",
+  "description": "AngularJS module that manages complex UI state dependencies and transitions.",
   "main": "index.js",
   "directories": {
     "test": "test"
@@ -23,5 +23,11 @@
   "bugs": {
     "url": "https://github.com/Rise-Vision/angular-ui-flow-manager/issues"
   },
-  "homepage": "https://github.com/Rise-Vision/angular-ui-flow-manager"
+  "homepage": "https://github.com/Rise-Vision/angular-ui-flow-manager",
+  "devDependencies": {
+    "gulp": "~3.8.10",
+    "run-sequence": "^0.3.6",
+    "widget-tester": "git://github.com/Rise-Vision/widget-tester.git",
+    "gulp-jshint": "^1.9.0"
+  }
 }
