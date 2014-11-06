@@ -1,6 +1,6 @@
 {
   "name": "angular-ui-flow-manager",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "homepage": "https://github.com/Rise-Vision/angular-ui-flow-manager",
   "description": "AngularJS module that manages complex UI state dependencies and transitions.",
   "keywords": [
@@ -15,7 +15,12 @@
     "Xiyang Chen <settinghead@gmail.com>"
   ],
   "dependencies": {
+    "ng-gapi-loader": "git://github.com/Rise-Vision/ng-gapi-loader.git",
     "angular": "~1.2.24"
+  },
+  "devDependencies": {
+      "q": "1.0.1",
+      "angular-mocks": "1.2.24"
   },
   "license": "GNU GPL",
   "private": true,
