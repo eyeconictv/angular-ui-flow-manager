@@ -1,0 +1,27 @@
+{
+  "name": "angular-ui-flow-manager",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Rise-Vision/angular-ui-flow-manager.git"
+  },
+  "keywords": [
+    "angular",
+    "ui",
+    "flow"
+  ],
+  "author": "Xiyang Chen <settinghead@gmail.com>",
+  "license": "GNU GPL",
+  "bugs": {
+    "url": "https://github.com/Rise-Vision/angular-ui-flow-manager/issues"
+  },
+  "homepage": "https://github.com/Rise-Vision/angular-ui-flow-manager"
+}
