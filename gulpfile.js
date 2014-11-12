@@ -12,6 +12,7 @@ var unitTestFiles = [
   "components/q/q.js",
   "components/angular-mocks/angular-mocks.js",
   "components/ng-gapi-loader/src/js/*.js",
+  "components/angular-local-storage/dist/angular-local-storage.js",
   "src/js/*.js",
   "test/gapi-mock.js",
   "test/unit/fixtures/*.js",
