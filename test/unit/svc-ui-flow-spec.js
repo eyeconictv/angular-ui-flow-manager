@@ -4,8 +4,11 @@ describe("Services: uiFlowManager", function() {
 
   var world = {
     hasJobs: false,
-    potBroken: false
+    potBroken: false,
+    raining: true,
   };
+
+  var uiState;
 
   beforeEach(module("risevision.ui-flow"));
 
@@ -18,28 +21,47 @@ describe("Services: uiFlowManager", function() {
         "canEarn": "canWakeUp",
         "canBuy": "canEarn",
         "canCook": "canBuy",
-        "canEat" : ["canCook", "canGoOut"],
+        "canEat" : ["canGoOut", "canCook"],
         "happy": "canEat"
       }
     });
 
     $provide.factory("canEarn", ["$q", function ($q) {
-      var deferred = $q.defer();
-      if(world.hasJobs) { deferred.resolve(); }
-      else {deferred.reject("canEarn"); }
-      return deferred.promise();
+      return function () {
+        var deferred = $q.defer();
+        if(world.hasJobs) { deferred.resolve(); }
+        else { deferred.reject("canEarn"); }
+        return deferred.promise;
+      };
     }]);
 
     $provide.factory("canCook", ["$q", function ($q) {
-      var deferred = $q.defer();
-      if(world.potBroken) {deferred.reject("canCook"); }
-      else { deferred.resolve(); }
-      return deferred.promise();
+      return function () {
+        var deferred = $q.defer();
+        if(world.potBroken) {deferred.reject("canCook"); }
+        else { deferred.resolve(); }
+        return deferred.promise;
+      };
     }]);
+
+    $provide.factory("canGoOut", ["$q", function ($q) {
+      return function () {
+        var deferred = $q.defer();
+        if(world.raining) {deferred.reject("canGoOut"); }
+        else { deferred.resolve(); }
+        return deferred.promise;
+      };
+    }]);
+
+    $provide.value("localStorageService", {
+      get: function () {return uiState;},
+      set: function (name, obj) {uiState = obj;},
+      remove: function () {uiState = null;}
+    });
 
     $provide.value("$log", {
       debug: function () {
-        // console.log.apply(null, arguments);
+        console.log.apply(null, arguments);
       }
     });
   }));
@@ -54,18 +76,19 @@ describe("Services: uiFlowManager", function() {
   it("should get stuck at 'earn' if there are no job on the market", function (done) {
     world.hasJobs = false;
     inject(function (uiFlowManager) {
-      uiFlowManager.invalidateStatus("happy").then(function () {
-        expect(uiFlowManager.getStatus().to.be.equal("canEarn"));
-        done();}, done).finally(done);
+      uiFlowManager.invalidateStatus("happy").then(null, function () {
+        expect(uiFlowManager.getStatus()).to.equal("canEarn");
+        done();});
     });
   });
 
   it("should get stuck at eat if the pot is broken", function (done) {
-    world.potBroken = true;
+    world.hasJobs = true; world.potBroken = true;
     inject(function (uiFlowManager) {
-      uiFlowManager.invalidateStatus("happy").then(function () {
-        expect(uiFlowManager.getStatus().to.be.equal("canCook"));
-        done();}, done).finally(done);
+      uiFlowManager.invalidateStatus("happy").then(null, function () {
+        expect(uiFlowManager.getStatus()).to.equal("canCook");
+        done();
+      });
     });
   });
 
@@ -73,11 +96,39 @@ describe("Services: uiFlowManager", function() {
     world.potBroken = false; world.hasJobs = true;
     inject(function (uiFlowManager) {
       uiFlowManager.invalidateStatus("happy").then(function () {
-        expect(uiFlowManager.getStatus().to.be.equal("happy"));
-        done();}, done).finally(done);
+        expect(uiFlowManager.getStatus()).to.equal("happy");
+        done();
+      });
     });
   });
 
+  it("should persist status", function (done) {
+    world.potBroken = true; world.hasJobs = true;
+    inject(function (uiFlowManager, localStorageService) {
+      sinon.spy(localStorageService, "set");
+      uiFlowManager.invalidateStatus("happy").then(null, function () {
+        try{
+          uiFlowManager.persist();
+          expect(localStorageService.set).to.have.been.called;
+        }
+        catch (e) {
+          done(e);
+        }
+        done();
+      });
+    });
+  });
 
+  it("should restore status", function () {
+    inject(function (uiFlowManager, localStorageService) {
+      expect(uiFlowManager.getStatus()).to.equal("canCook");
+    });
+  });
+
+  it("should not restore status twice", function () {
+    inject(function (uiFlowManager, localStorageService) {
+      expect(uiFlowManager.getStatus()).to.be.undefined;
+    });
+  });
 
 });

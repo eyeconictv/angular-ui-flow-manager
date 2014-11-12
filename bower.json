@@ -16,7 +16,8 @@
   ],
   "dependencies": {
     "ng-gapi-loader": "git://github.com/Rise-Vision/ng-gapi-loader.git",
-    "angular": "~1.2.24"
+    "angular": "~1.2.24",
+    "angular-local-storage": "~0.1.4"
   },
   "devDependencies": {
       "q": "1.0.1",

@@ -1,7 +1,7 @@
 (function (angular) {
   "use strict";
 
-angular.module("risevision.ui-flow", [])
+angular.module("risevision.ui-flow", ["LocalStorageModule"])
 
 .constant("uiStatusDependencies", {
   _dependencies: {},
@@ -11,8 +11,9 @@ angular.module("risevision.ui-flow", [])
 })
 
 .factory("uiFlowManager", ["$log", "$q", "$injector",
-"uiStatusDependencies", "$rootScope",
-  function ($log, $q, $injector, uiStatusDependencies, $rootScope) {
+"uiStatusDependencies", "$rootScope", "localStorageService",
+  function ($log, $q, $injector, uiStatusDependencies, $rootScope,
+  localStorageService) {
 
   var _status, _goalStatus;
   var _dependencyMap = uiStatusDependencies._dependencies;
@@ -32,6 +33,7 @@ angular.module("risevision.ui-flow", [])
       factory = $injector.get(status);
     }
     catch (e) {
+      $log.debug("Generating dummy status", status);
       factory = genedateDummyStatus();
     }
     return factory;
@@ -40,6 +42,7 @@ angular.module("risevision.ui-flow", [])
   //internal method that attempt to reach a particular status
   var _attemptStatus = function(status){
     var lastD;
+
     $log.debug("Attempting to reach status", status, "...");
     var dependencies = _dependencyMap[status];
     if(dependencies) {
@@ -106,6 +109,7 @@ angular.module("risevision.ui-flow", [])
   };
 
   var _recheckStatus = function (desiredStatus) {
+    var deferred = $q.defer();
     if(!desiredStatus) {
       if(_goalStatus) { desiredStatus = _goalStatus; }
       else { throw "You must specify an initial status to achieve. "; }
@@ -114,15 +118,18 @@ angular.module("risevision.ui-flow", [])
       //register what the goal status it for subsequent attempts
       _goalStatus = desiredStatus;
     }
-    return _attemptStatus(desiredStatus).then(
-      function () {
+    _attemptStatus(desiredStatus).then(
+      function (s) {
         _status = desiredStatus;
+        deferred.resolve(s);
       },
       function (status) {
         // if rejected at any given step,
         // show the dialog of that relevant step
         _status = status;
+        deferred.reject(status);
       });
+    return deferred.promise;
   };
 
 
@@ -131,7 +138,18 @@ angular.module("risevision.ui-flow", [])
     return _recheckStatus(desiredStatus);
   };
 
-  var uiStateManager = {
+  var persist = function () {
+    localStorageService.set("risevision.ui-flow.state", {status : _status});
+  };
+
+  //restore
+  if(localStorageService.get("risevision.ui-flow.state")) {
+    var state = localStorageService.get("risevision.ui-flow.state");
+    _status = state.status;
+    localStorageService.remove("risevision.ui-flow.state");
+  }
+
+  var manager = {
     invalidateStatus: invalidateStatus,
     cancelValidation: function () {
       _status = "";
@@ -140,10 +158,10 @@ angular.module("risevision.ui-flow", [])
     },
     getStatus: function () { return _status; },
     isStatusUndetermined: function () { return _status === "pendingCheck"; },
-    generateDummyStatus: genedateDummyStatus
+    persist: persist
   };
 
-  return uiStateManager;
+  return manager;
 }]);
 
 })(angular);
