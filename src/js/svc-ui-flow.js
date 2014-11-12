@@ -108,44 +108,58 @@ angular.module("risevision.ui-flow", ["LocalStorageModule"])
     return lastD.promise;
   };
 
+  var deferred, final = true;
   var _recheckStatus = function (desiredStatus) {
-    var deferred = $q.defer();
-    if(!desiredStatus) {
-      if(_goalStatus) { desiredStatus = _goalStatus; }
-      else { throw "You must specify an initial status to achieve. "; }
+    if(!desiredStatus && !_goalStatus) {
+      //no goal, no desired status. resolve to true immediately
+      var d = $q.defer(); d.resolve();
+      return d.promise;
     }
-    else {
-      //register what the goal status it for subsequent attempts
+    if(!_goalStatus && final) {
       _goalStatus = desiredStatus;
+      deferred = $q.defer();
+      final = false;
     }
-    _attemptStatus(desiredStatus).then(
-      function (s) {
-        _status = desiredStatus;
-        deferred.resolve(s);
-      },
-      function (status) {
-        // if rejected at any given step,
-        // show the dialog of that relevant step
-        _status = status;
-        deferred.reject(status);
-      });
-    return deferred.promise;
+    if(_goalStatus) {
+      _attemptStatus(_goalStatus).then(
+        function (s) {
+          if(_goalStatus) {
+            _status = _goalStatus;
+          }
+          deferred.resolve(s);
+          _goalStatus = null;
+          final = true;
+        },
+        function (status) {
+          // if rejected at any given step,
+          // show the dialog of that relevant step
+          _status = status;
+          deferred.reject(status);
+          final = true;
+        });
+    }
+    return deferred && deferred.promise;
   };
 
 
   var invalidateStatus = function (desiredStatus) {
-    _status = "pendingCheck";
-    return _recheckStatus(desiredStatus);
+      _status = "pendingCheck";
+      return _recheckStatus(desiredStatus);
   };
 
   var persist = function () {
-    localStorageService.set("risevision.ui-flow.state", {status : _status});
+    localStorageService.set("risevision.ui-flow.state",
+      {goalStatus: _goalStatus});
   };
 
   //restore
   if(localStorageService.get("risevision.ui-flow.state")) {
     var state = localStorageService.get("risevision.ui-flow.state");
-    _status = state.status;
+    if(state && state.goalStatus) {
+      $log.debug("uiFlowManager.goalStatus restored to", state.goalStatus);
+      _goalStatus = state.goalStatus;
+      deferred = $q.defer(); final = false;
+    }
     localStorageService.remove("risevision.ui-flow.state");
   }
 
@@ -160,6 +174,9 @@ angular.module("risevision.ui-flow", ["LocalStorageModule"])
     isStatusUndetermined: function () { return _status === "pendingCheck"; },
     persist: persist
   };
+
+  //DEBUG
+  // window.uiFlowManager = manager;
 
   return manager;
 }]);

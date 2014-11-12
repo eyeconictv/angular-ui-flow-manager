@@ -22,8 +22,9 @@ describe("Services: uiFlowManager", function() {
         "canBuy": "canEarn",
         "canCook": "canBuy",
         "canEat" : ["canGoOut", "canCook"],
-        "happy": "canEat"
-      }
+        "happy": "canEat",
+        "worldPeace": "noWar"
+      },
     });
 
     $provide.factory("canEarn", ["$q", function ($q) {
@@ -119,15 +120,32 @@ describe("Services: uiFlowManager", function() {
     });
   });
 
-  it("should restore status", function () {
+  it("should restore status", function (done) {
     inject(function (uiFlowManager, localStorageService) {
-      expect(uiFlowManager.getStatus()).to.equal("canCook");
+      uiFlowManager.invalidateStatus().then(null, function () {
+        expect(uiFlowManager.getStatus()).to.equal("canCook");
+        done();
+      });
     });
   });
 
-  it("should not restore status twice", function () {
+  it("should not restore status twice", function (done) {
     inject(function (uiFlowManager, localStorageService) {
-      expect(uiFlowManager.getStatus()).to.be.undefined;
+      uiFlowManager.invalidateStatus().then(function (){ done(); });
+    });
+  });
+
+  it("should only serve one goal at a time", function (done) {
+    inject(function (uiFlowManager, localStorageService) {
+      uiFlowManager.invalidateStatus("worldPeace");
+      uiFlowManager.invalidateStatus("happy").then(function (){
+        try {
+          expect(uiFlowManager.getStatus()).to.equal("worldPeace");
+        }
+        catch (e) {
+          done(e);
+        }
+        done(); }, done);
     });
   });
 
