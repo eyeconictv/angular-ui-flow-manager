@@ -167,6 +167,7 @@ angular.module("risevision.ui-flow", ["LocalStorageModule"])
     invalidateStatus: invalidateStatus,
     cancelValidation: function () {
       _status = "";
+      _goalStatus = "";
       $rootScope.$broadcast("risevision.uiStatus.validationCancelled");
       $log.debug("UI status validation cancelled.");
     },
