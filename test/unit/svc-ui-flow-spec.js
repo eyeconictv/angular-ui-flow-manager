@@ -15,18 +15,6 @@ describe("Services: uiFlowManager", function() {
   beforeEach(module(function ($provide) {
     //stub services
     $provide.service("$q", function() {return Q;});
-    $provide.constant("uiStatusDependencies", {
-      _dependencies: {
-        "canWakeUp": "canSleep",
-        "canEarn": "canWakeUp",
-        "canBuy": "canEarn",
-        "canCook": "canBuy",
-        "canEat" : ["canGoOut", "canCook"],
-        "happy": "canEat",
-        "worldPeace": "noWar"
-      },
-    });
-
     $provide.factory("canEarn", ["$q", function ($q) {
       return function () {
         var deferred = $q.defer();
@@ -66,6 +54,18 @@ describe("Services: uiFlowManager", function() {
       }
     });
   }));
+
+  beforeEach(function () {
+    inject(function (uiStatusDependencies) {
+      uiStatusDependencies.addDependencies({"canWakeUp": "canSleep",
+      "canEarn": "canWakeUp",
+      "canBuy": "canEarn",
+      "canCook": "canBuy",
+      "canEat" : ["canGoOut", "canCook"],
+      "happy": "canEat",
+      "worldPeace": "noWar"});
+    });
+  });
 
   it("should exist", function(done) {
     inject(function(uiFlowManager) {
@@ -146,6 +146,24 @@ describe("Services: uiFlowManager", function() {
           done(e);
         }
         done(); }, done);
+    });
+  });
+
+  it("should cancel validation after maximum number of allowed retries is reached", function (done) {
+    world.hasJobs = true; world.potBroken = true;
+    inject(function (uiFlowManager, uiStatusDependencies) {
+      uiStatusDependencies.setMaximumRetryCount("canCook", 2);
+
+      uiFlowManager.invalidateStatus("happy").then(null, function () {
+        expect(uiFlowManager.getStatus()).to.equal("canCook");
+        uiFlowManager.invalidateStatus().then(null, function () {
+          expect(uiFlowManager.getStatus()).to.equal("canCook");
+          uiFlowManager.invalidateStatus().then(null, function () {
+            expect(uiFlowManager.getStatus()).to.not.be.ok;
+            done();
+          });
+        });
+      });
     });
   });
 
