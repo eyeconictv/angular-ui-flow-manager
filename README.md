@@ -1,5 +1,4 @@
-# angular-ui-flow-manager [![Build Status](https://travis-ci.org/Rise-Vision/angular-ui-flow-manager.svg)](https://travis-ci.org/Rise-Vision/angular-ui-flow-manager)
-
+# angular-ui-flow-manager [![Circle CI](https://circleci.com/gh/Rise-Vision/angular-ui-flow-manager.svg?style=svg)](https://circleci.com/gh/Rise-Vision/angular-ui-flow-manager)
 ## Introduction
 
 AngularJS module that manages complex UI state dependencies and transitions.
