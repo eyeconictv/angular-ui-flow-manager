@@ -1,3 +1,6 @@
+## DEPRECATED
+Use: https://github.com/Rise-Vision/common-header/tree/master/src/js/components/ui-flow
+
 # angular-ui-flow-manager [![Circle CI](https://circleci.com/gh/Rise-Vision/angular-ui-flow-manager.svg?style=svg)](https://circleci.com/gh/Rise-Vision/angular-ui-flow-manager)
 ## Introduction
 
