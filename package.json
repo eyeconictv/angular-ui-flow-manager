@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Rise-Vision/angular-ui-flow-manager.git"
+    "url": "https://github.com/porcupine-plan/angular-ui-flow-manager.git"
   },
   "keywords": [
     "angular",
@@ -21,13 +21,13 @@
   "author": "Xiyang Chen <settinghead@gmail.com>",
   "license": "GNU GPL",
   "bugs": {
-    "url": "https://github.com/Rise-Vision/angular-ui-flow-manager/issues"
+    "url": "https://github.com/porcupine-plan/angular-ui-flow-manager/issues"
   },
-  "homepage": "https://github.com/Rise-Vision/angular-ui-flow-manager",
+  "homepage": "https://github.com/porcupine-plan/angular-ui-flow-manager",
   "devDependencies": {
     "gulp": "~3.8.10",
     "run-sequence": "^0.3.6",
-    "widget-tester": "git://github.com/Rise-Vision/widget-tester.git",
+    "widget-tester": "git://github.com/porcupine-plan/widget-tester.git",
     "gulp-jshint": "^1.9.0"
   }
 }
